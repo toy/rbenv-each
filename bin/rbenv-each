@@ -8,9 +8,10 @@
 # Failures are collected and reported at the end.
 #
 # Options:
-#    -h, --help      Print this help message
-#    -a, --aliases   Don't skip ruby versions that are aliases (symlinks)
-#    -v, --verbose   Verbose mode: print a header for each version version
+#    -a, --aliases       Don't skip ruby versions that are aliases (symlinks)
+#    -V, --versions VER  Run on VER, a space separated list of versions
+#    -h, --help          Print this help message
+#    -v, --verbose       Verbose mode: print a header for each version version
 #
 set -e
 [ -n "$RBENV_DEBUG" ] && set -x
@@ -21,6 +22,8 @@ if [ "$1" = "--complete" ]; then
   echo --verbose
   echo -a
   echo --aliases
+  echo -V
+  echo --versions
   exit
 fi
 
@@ -31,11 +34,16 @@ usage() {
 
 verbose=
 aliases=
+versions=
 
 while [[ $1 == -* ]]; do
     case "$1" in
         -v|--verbose)
             verbose=1
+            ;;
+        -V|--versions)
+            versions="$2"
+            shift
             ;;
         -a|--aliases)
             aliases=1
@@ -77,7 +85,11 @@ else
     opts="--skip-aliases"
 fi
 
-for ruby in $(rbenv versions --bare $opts); do
+if [ -z "$versions" ]; then
+    versions="$(rbenv versions --bare $opts)"
+fi
+
+for ruby in $versions; do
   if [ -n "$verbose" ]; then
     header="===[$ruby]==================================================================="
     header="${header:0:72}"
