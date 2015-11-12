@@ -2,12 +2,15 @@
 #
 # Summary: Execute a command for each Ruby version
 #
-# Usage: rbenv each [-v] <command> [arg1 arg2...]
+# Usage: rbenv each [options] <command> [arg1 arg2...]
 #
-# Executes a command for each Ruby version by setting RBENV_VERSION.
+# Execute a command for each Ruby version by setting RBENV_VERSION.
 # Failures are collected and reported at the end.
 #
-#    -v  Verbose mode. Prints a header for each ruby.
+# Options:
+#    -h, --help      Print this help message
+#    -a, --aliases   Don't skip ruby versions that are aliases (symlinks)
+#    -v, --verbose   Verbose mode: print a header for each version version
 #
 set -e
 [ -n "$RBENV_DEBUG" ] && set -x
@@ -15,20 +18,42 @@ set -e
 # Provide rbenv completions
 if [ "$1" = "--complete" ]; then
   echo -v
+  echo --verbose
+  echo -a
+  echo --aliases
   exit
 fi
 
-if [ "$1" = "-v" ]; then
-  verbose=1
-  shift
-fi
+usage() {
+    rbenv-help --usage each >&2
+    exit 1
+}
 
-case "$1" in
-""  | -* )
-  rbenv-help --usage each >&2
-  exit 1
-  ;;
-esac
+verbose=
+aliases=
+
+while [[ $1 == -* ]]; do
+    case "$1" in
+        -v|--verbose)
+            verbose=1
+            ;;
+        -a|--aliases)
+            aliases=1
+            ;;
+        -h|--help)
+            rbenv-help each >&2
+            exit 0
+            ;;
+        *)
+            usage
+            ;;
+    esac
+    shift
+done
+
+if [ $# -lt 1 ]; then
+    usage
+fi
 
 GRAY=""
 RED=""
@@ -46,7 +71,13 @@ failed_rubies=""
 
 trap "exit 1" INT
 
-for ruby in $(rbenv versions --bare); do
+if [ -n "$aliases" ]; then
+    opts=
+else
+    opts="--skip-aliases"
+fi
+
+for ruby in $(rbenv versions --bare $opts); do
   if [ -n "$verbose" ]; then
     header="===[$ruby]==================================================================="
     header="${header:0:72}"
