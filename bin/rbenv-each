@@ -16,6 +16,12 @@
 set -e
 [ -n "$RBENV_DEBUG" ] && set -x
 
+if ! type rbenv-whatis &>/dev/null; then
+  echo "rbenv-whatis plugin not installed, please run:" >&2
+  echo -e "\n\tgit clone https://github.com/toy/rbenv-whatis.git $RBENV_ROOT/plugins/whatis\n" >&2
+  exit 1
+fi
+
 # Provide rbenv completions
 if [ "$1" = "--complete" ]; then
   echo -q
@@ -87,6 +93,8 @@ fi
 
 if [ -z "$versions" ]; then
   versions="$(rbenv versions --bare $opts)"
+else
+  versions="$(for ruby in $versions; do rbenv whatis --installed "$ruby"; done)"
 fi
 
 for ruby in $versions; do
