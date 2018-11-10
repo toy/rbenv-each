@@ -12,7 +12,7 @@
 #    -V, --versions VER  Run on VER, a space separated list of versions
 #    -h, --help          Print this help message
 #    -q  Quiet mode. Don't print header for each ruby.
-#
+
 set -e
 [ -n "$RBENV_DEBUG" ] && set -x
 
@@ -28,8 +28,8 @@ if [ "$1" = "--complete" ]; then
 fi
 
 usage() {
-    rbenv-help --usage each >&2
-    exit 1
+  rbenv-help --usage each >&2
+  exit 1
 }
 
 quiet=
@@ -37,30 +37,30 @@ aliases=
 versions=
 
 while [[ $1 == -* ]]; do
-    case "$1" in
-        -q|--quiet)
-            quiet=1
-            ;;
-        -V|--versions)
-            versions="$2"
-            shift
-            ;;
-        -a|--aliases)
-            aliases=1
-            ;;
-        -h|--help)
-            rbenv-help each >&2
-            exit 0
-            ;;
-        *)
-            usage
-            ;;
-    esac
-    shift
+  case "$1" in
+    -q|--quiet)
+      quiet=1
+      ;;
+    -V|--versions)
+      versions="$2"
+      shift
+      ;;
+    -a|--aliases)
+      aliases=1
+      ;;
+    -h|--help)
+      rbenv-help each >&2
+      exit 0
+      ;;
+    *)
+      usage
+      ;;
+  esac
+  shift
 done
 
 if [ $# -lt 1 ]; then
-    usage
+  usage
 fi
 
 BOLD=""
@@ -80,13 +80,13 @@ failed_rubies=""
 trap "exit 1" INT
 
 if [ -n "$aliases" ]; then
-    opts=
+  opts=
 else
-    opts="--skip-aliases"
+  opts="--skip-aliases"
 fi
 
 if [ -z "$versions" ]; then
-    versions="$(rbenv versions --bare $opts)"
+  versions="$(rbenv versions --bare $opts)"
 fi
 
 for ruby in $versions; do
